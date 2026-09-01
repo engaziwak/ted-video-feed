@@ -1,0 +1,30 @@
+name: Update TED video RSS feed
+
+on:
+ schedule:
+    - cron: '0 2 * * *' # Runs daily at 2:00 AM
+  workflow_dispatch: # Allows you to run it manually
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Scraper
+        run: python scraper.py
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add feed.xml
+          git commit -m "Update RSS feed" || exit 0
+          git push
